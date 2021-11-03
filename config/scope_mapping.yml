@@ -1,0 +1,16 @@
+## Uncomment these lines to enable the Omejdn Admin API
+#omejdn:read: 
+#  - omejdn
+#omejdn:write:
+#  - omejdn
+#omejdn:admin:
+#  - omejdn
+
+# Necessary IDS Claims to issue a DAT
+idsc:IDS_CONNECTOR_ATTRIBUTES_ALL:
+  - securityProfile
+  - referringConnector
+  - "@type"
+  - "@context"
+  - transportCertsSha256
+

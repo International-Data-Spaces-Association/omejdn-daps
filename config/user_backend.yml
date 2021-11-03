@@ -1,0 +1,4 @@
+---
+# Omejdn needs this
+yaml:
+  location: config/users.yml

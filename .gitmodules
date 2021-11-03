@@ -1,0 +1,4 @@
+[submodule "omejdn-server"]
+	path = omejdn-server
+	url = https://github.com/Fraunhofer-AISEC/omejdn-server
+	branch = master
