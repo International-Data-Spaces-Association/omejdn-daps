@@ -1,6 +1,7 @@
 ---
 # Replace all 3 occurences of "http://daps.example.com" with the server's URI
 host: http://daps.example.com
+accept_audience: idsc:IDS_CONNECTORS_ALL
 openid: false
 token:
   expiration: 3600

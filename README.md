@@ -18,7 +18,7 @@ In general, it requires registering both the DAPS certificate and its name as a 
 - [OpenSSL](https://www.openssl.org/)
 
 This repository has submodules.
-Make sure to download them using `git submodule update --init`
+Make sure to download them using `git submodule update --init --remote`
 
 ## Minimal Configuration
 
