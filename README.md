@@ -24,11 +24,21 @@ Make sure to download them using `git submodule update --init --remote`
 
 The configuration consists of the following steps:
 
+1. Downloading Omejdn
 1. Generating a DAPS secret key and certificate
 1. Provisioning the provided config files and registering connectors
 1. Starting the server
 
 All commands are to be run from the repository's root directory
+
+### Downloading Omejdn
+
+Omejdn is included as a submodule in this repository.
+To retrieve it, run:
+
+```
+git submodule update --init --remote
+```
 
 ### DAPS Key Generation
 
