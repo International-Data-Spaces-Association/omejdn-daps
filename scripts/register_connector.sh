@@ -13,7 +13,9 @@ CLIENT_SECURITY_PROFILE=$2
 CLIENT_CERT="keys/$CLIENT_NAME.cert"
 if [ -n "$3" ]; then
     [ ! -f "$3" ] && (echo "Cert not found"; exit 1)
-    openssl x509 -in "$3" -text > "$CLIENT_CERT"
+    cert_format="DER"
+    openssl x509 -noout -in "$3" 2>/dev/null && cert_format="PEM"
+    openssl x509 -inform "$cert_format" -in "$3" -text > "$CLIENT_CERT"
 else
     openssl req -newkey rsa:2048 -new -batch -nodes -x509 -days 3650 -text -keyout "keys/${CLIENT_NAME}.key" -out "$CLIENT_CERT"
 fi
