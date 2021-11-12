@@ -96,7 +96,8 @@ $ ruby omejdn.rb
 
 The endpoint for issuing DATs is `/token`. You may use it as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
 
-A script to quickly test your setup can be found in `scripts` (requires jq to be installed to format JSON):
+A script to quickly test your setup can be found in `scripts` (requires jq to be installed to format JSON).
+Be aware that Omejdn has its own folder labeled scripts, which is not the one mentioned here.
 
 ```
 $ scripts/test.sh CLIENT_NAME
