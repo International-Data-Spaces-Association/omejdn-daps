@@ -43,7 +43,7 @@ payload = {
   'exp' => Time.new.to_i + 3600,
   'nbf' => Time.new.to_i,
   'iat' => Time.new.to_i,
-  'aud' => 'http://localhost:4567'
+  'aud' => 'idsc:IDS_CONNECTORS_ALL'
 }
 token = JWT.encode payload, client_rsa_key, 'RS256'
 puts token
