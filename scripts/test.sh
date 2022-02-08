@@ -16,7 +16,7 @@ fi
 }
 
 CLIENTNAME="$1"
-CLIENTCERT="../omejdn-server/keys/$CLIENTNAME.cert"
+CLIENTCERT="../keys/$CLIENTNAME.cert"
 CERT="$(openssl x509 -in "$CLIENTCERT" -text)"
 error_check $? "Could not load client certificate. Are you sure you copied it into omejdn-server/keys?"
 
@@ -35,7 +35,7 @@ CLIENTNAME = '$CLIENTNAME'
 CLIENTID = "$CLIENTID" 
 
 # Only for debugging!
-filename = "../omejdn-server/keys/#{CLIENTNAME}.key"
+filename = "../keys/#{CLIENTNAME}.key"
 client_rsa_key = OpenSSL::PKey::RSA.new File.read(filename)
 payload = {
   'iss' => CLIENTID,
@@ -51,9 +51,12 @@ EOF
 )"
 error_check $? "Could not create Test JWT"
 
-TOKEN="$(curl -Ss localhost:4567/token --data "grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${JWT}&scope=idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")"
+echo $JWT
+
+TOKEN="$(curl -Ss -Lk --post301 localhost/token --data "grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${JWT}&scope=idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")"
 error_check $? "Omejdn did not issue a DAT. Are you sure it is running?"
 
+echo $TOKEN
 AT="$(echo $TOKEN | jq -r .access_token)"
 
 echo "Here is the DAT Header:"

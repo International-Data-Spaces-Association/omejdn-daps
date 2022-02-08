@@ -26,7 +26,7 @@ CLIENT_ID="$SKI:$AKI"
 
 CLIENT_CERT_SHA="$(openssl x509 -in "$CLIENT_CERT" -noout -sha256 -fingerprint | tr '[:upper:]' '[:lower:]' | tr -d : | sed 's/.*=//')"
 
-cat <<EOF
+cat >> config/clients.yml <<EOF
 - client_id: $CLIENT_ID
   name: $CLIENT_NAME
   redirect_uri: 

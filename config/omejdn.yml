@@ -1,28 +1,6 @@
 ---
-# Replace all 3 occurences of "http://daps.example.com" with the server's URI
-host: http://daps.example.com
-accept_audience: idsc:IDS_CONNECTORS_ALL
-openid: false
-token:
-  expiration: 3600
-  signing_key: daps.key
-  algorithm: RS256
-  audience: idsc:IDS_CONNECTORS_ALL
-  issuer: http://daps.example.com
-id_token:
-  expiration: 3600
-  signing_key: daps.key
-  algorithm: RS256
-  issuer: http://daps.example.com
-
-user_backend:
-- yaml
-user_backend_default: yaml
-
-# User Selfservice API
-user_selfservice:
-  enabled: false
-  allow_deletion: false
-  allow_password_change: false
-  editable_attributes: []
-
+plugins:
+  claim_mapper:
+    attribute:
+      skip_access_token: false
+      skip_id_token: true

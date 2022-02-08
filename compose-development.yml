@@ -1,0 +1,22 @@
+
+services:
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ${PWD}/nginx/development:/etc/nginx/templates
+
+  omejdn-server:
+    image: ghcr.io/fraunhofer-aisec/omejdn-server:dev
+    restart: unless-stopped
+    environment:
+      - OMEJDN_ISSUER=${DAPS_ISSUER}
+      - OMEJDN_ACCEPT_AUDIENCE=idsc:IDS_CONNECTORS_ALL
+      - OMEJDN_DEFAULT_AUDIENCE=idsc:IDS_CONNECTORS_ALL
+    volumes:
+      - ${PWD}/config:/opt/config
+      - ${PWD}/keys:/opt/keys
+

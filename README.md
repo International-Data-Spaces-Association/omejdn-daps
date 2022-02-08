@@ -16,6 +16,7 @@ In general, it requires registering both the DAPS certificate and its name as a 
 
 - [Omejdn Server](https://github.com/Fraunhofer-AISEC/omejdn-server)'s dependencies
 - [OpenSSL](https://www.openssl.org/)
+- [Docker compose](https://docs.docker.com/compose/)
 
 This repository has submodules.
 Make sure to download them using `git submodule update --init --remote`
@@ -26,7 +27,7 @@ The configuration consists of the following steps:
 
 1. Downloading Omejdn
 1. Generating a DAPS secret key and certificate
-1. Provisioning the provided config files and registering connectors
+1. Adjusting configuration files and registering connectors
 1. Starting the server
 
 All commands are to be run from the repository's root directory
@@ -47,19 +48,19 @@ This can be done using openssl and the following command.
 It is recommended to fill out the form, but not strictly necessary for test setups.
 
 ```
-$ openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout daps.key -out daps.cert
+$ openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout keys/omejdn/omejdn.key -out daps.cert
 ```
 
 This will create two files:
 
-* `daps.key` is the private signing key. It should **never** be known to anyone but the server, since anyone with this file can issue arbitrary DATs.
+* `omejdn.key` is the private signing key. It should **never** be known to anyone but the server, since anyone with this file can issue arbitrary DATs.
 * `daps.cert` is the certificate file. It is not confidential and is necessary to validate DATs. It must be made available to any DAT verifying entity.
 
 ### Config Files
 
 #### Server config
 
-Open the provided `config/omejdn.yml` and replace every occurence of `http://daps.example.com` with your server's URI.
+Open the provided `.env` and fill in your own URL as `DAPS_URL`.
 
 #### Registering Connectors
 
@@ -74,30 +75,24 @@ $ scripts/register_connector.sh NAME SECURITY_PROFILE CERTIFICATE_FILE >> config
 
 The `SECURITY_PROFILE` and `CERTIFICATE` arguments are optional. Values for the former include:
 
-- idsc:BASE_SECURITY_PROFILE (default)
-- idsc:TRUST_SECURITY_PROFILE
-- idsc:TRUST_PLUS_SECURITY_PROFILE
+- `idsc:BASE_SECURITY_PROFILE` (default)
+- `idsc:TRUST_SECURITY_PROFILE`
+- `idsc:TRUST_PLUS_SECURITY_PROFILE`
 
 The script will automatically generate new client certificates (`keys/NAME.cert`) and keys (`keys/NAME.key`) if you do not provide a certificate manually.
 
 
-### Starting Omejdn
+### Starting the server
 
-Replace the `keys` and `config` folder inside `omejdn-server` by the ones in this folder.
-Copy `daps.key` into `omejdn-server`.
-
-Navigate into `omejdn-server`
-Now you may start Omejdn by executing
+To start the service, execute
 
 ```
-$ bundle install
-$ ruby omejdn.rb
+$ docker compose -f compose-development.yml up -d
 ```
 
 The endpoint for issuing DATs is `/token`. You may use it as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
 
 A script to quickly test your setup can be found in `scripts` (requires jq to be installed to format JSON).
-Be aware that Omejdn has its own folder labeled scripts, which is not the one mentioned here.
 
 ```
 $ scripts/test.sh CLIENT_NAME
@@ -111,7 +106,11 @@ you probably want to consider the following ideas in the long term:
 #### Transport Encryption
 
 Run Omejdn behind a Proxy with https support, such as [Nginx](https://nginx.org/en/).
-Do not forget to edit `config/omejdn.yml` to reflect the new address.
+
+The alternative `compose-production.yml` uses some more variables defined in `.env` and sets up NginX to run Omejdn behind TLS,
+provided you can serve the TLS key and certificate.
+
+It also illustrates the correct configuration for using the Omejdn based DAPS with a non-root path component in the URL.
 
 #### Certificate Authorities
 
@@ -133,4 +132,6 @@ then edit or register a client with an attribute like this:
 
 Add the scope `omejdn:admin` to its list of allowed scopes.
 
-This client may now use the Omejdn Config API as documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/API.md).
+After enabling the Admin API Plugin in `config/omejdn.yml` (Have a look at `omejdn-server/config/omejdn.yml`),
+this client may now use the Omejdn Config API as documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/API.md).
+

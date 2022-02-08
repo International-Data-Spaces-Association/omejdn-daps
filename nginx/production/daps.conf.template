@@ -1,0 +1,25 @@
+server {
+  listen              443 ssl default_server;
+  listen              [::]:443 ssl default_server ;
+  server_name         ${NGINX_HOST};
+
+  ssl_certificate     /etc/nginx/daps.cert;
+  ssl_certificate_key /etc/nginx/daps.key;
+
+  proxy_set_header   Host $host;
+  proxy_set_header   X-Forwarded-Proto https;
+
+  location  ${DAPS_PATH} {
+    rewrite ${DAPS_PATH}/(.*) /$1  break;
+    proxy_pass         http://omejdn-server:4567;
+    proxy_redirect     off;
+  }
+
+  #  Well-Known URIs
+  location /.well-known {
+    # RFC 8414 style .well-known
+    rewrite /\.well-known/(.*)${DAPS_PATH} /.well-known/$1 break;
+    proxy_pass         http://omejdn-server:4567;
+    proxy_redirect     off;
+  }
+}
