@@ -107,7 +107,7 @@ you probably want to consider the following ideas in the long term:
 
 Run Omejdn behind a Proxy with https support, such as [Nginx](https://nginx.org/en/).
 
-The alternative `compose-production.yml` uses some more variables defined in `.env` and sets up NginX to run Omejdn behind TLS,
+The alternative `compose-https.yml` uses some more variables defined in `.env` and sets up NginX to run Omejdn behind TLS,
 provided you can serve the TLS key and certificate.
 
 It also illustrates the correct configuration for using the Omejdn based DAPS with a non-root path component in the URL.
