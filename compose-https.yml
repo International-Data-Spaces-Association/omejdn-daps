@@ -11,7 +11,7 @@ services:
       - NGINX_HOST=${DAPS_DOMAIN}
       - DAPS_PATH=${DAPS_PATH}
     volumes:
-      - ${PWD}/nginx/production:/etc/nginx/templates
+      - ${PWD}/nginx/https:/etc/nginx/templates
       - ${DAPS_CERT}:/etc/nginx/daps.cert
       - ${DAPS_KEY}:/etc/nginx/daps.key
 

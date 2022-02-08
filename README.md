@@ -60,7 +60,7 @@ This will create two files:
 
 #### Server config
 
-Open the provided `.env` and fill in your own URL as `DAPS_URL`.
+Open the provided `.env` and fill in your own DOMAIN as `DAPS_DOMAIN`.
 
 #### Registering Connectors
 
@@ -70,7 +70,7 @@ To ease this process, use the provided script `scripts/register_connector.sh`
 Usage:
 
 ```
-$ scripts/register_connector.sh NAME SECURITY_PROFILE CERTIFICATE_FILE >> config/clients.yml
+$ scripts/register_connector.sh NAME SECURITY_PROFILE CERTIFICATE_FILE
 ```
 
 The `SECURITY_PROFILE` and `CERTIFICATE` arguments are optional. Values for the former include:
