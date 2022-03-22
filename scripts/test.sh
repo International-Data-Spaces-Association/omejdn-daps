@@ -18,12 +18,16 @@ fi
 CLIENTNAME="$1"
 CLIENTCERT="../keys/$CLIENTNAME.cert"
 CERT="$(openssl x509 -in "$CLIENTCERT" -text)"
-error_check $? "Could not load client certificate. Are you sure you copied it into omejdn-server/keys?"
+error_check $? "Could not load client certificate."
+
+# Load Configuration
+. ../.env
+echo "Trying to get a DAT for $CLIENTNAME from $DAPS_ISSUER"
 
 SKI="$(echo "$CERT" | grep -A1 "Subject Key Identifier" | tail -n 1 | tr -d ' ')"
 AKI="$(echo "$CERT" | grep -A1 "Authority Key Identifier" | tail -n 1 | tr -d ' ')"
 CLIENTID="$SKI:$AKI"
-echo "Found client $CLIENTID"
+echo "Derived connector ID: $CLIENTID"
 
 # script mostly taken from upstream Omejdn
 JWT="$(ruby /dev/stdin <<EOF
@@ -51,14 +55,31 @@ EOF
 )"
 error_check $? "Could not create Test JWT"
 
-echo $JWT
+# Acquire the metadata document (IMPORTANT: This is ignoring the server's certificate validity. DO NOT USE THIS IN PRODUCTION!)
+[ "$DAPS_PATH" == "/" ] && DAPS_PATH="" # Erase root path
+METADATA_URL="$DAPS_ISSUER/.well-known/oauth-authorization-server$DAPS_PATH"
+echo "Aquiring the server's metadata document from $METADATA_URL"
+METADATA="$(curl -Ss -Lk --post301 "$METADATA_URL")"
+error_check $? "Could not aquire the server's metadata. Are you sure Omejdn is running?"
 
-TOKEN="$(curl -Ss -Lk --post301 localhost/token --data "grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${JWT}&scope=idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")"
+# Extract the token endpoint
+TOKEN_ENDPOINT="$(echo "$METADATA" | jq -r .token_endpoint)"
+echo "The token endpoint is $TOKEN_ENDPOINT"
+
+# Request a DAT (IMPORTANT: This is ignoring the server's certificate validity. DO NOT USE THIS IN PRODUCTION!)
+echo "Requesting a DAT from the above token endpoint"
+TOKEN="$(curl -Ss -Lk --post301 $TOKEN_ENDPOINT --data "grant_type=client_credentials&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion=${JWT}&scope=idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")"
 error_check $? "Omejdn did not issue a DAT. Are you sure it is running?"
 
-echo $TOKEN
-AT="$(echo $TOKEN | jq -r .access_token)"
+# Error checking
+ERROR="$(echo $TOKEN | jq -r .error)"
+ERROR_DESC="$(echo $TOKEN | jq -r .error_description)"
+if [ "$ERROR" != "null" ]; then
+  error_check 1 "Received Error Code $ERROR: $ERROR_DESC"
+fi
 
+# Extract and decode the DAT (IMPORTANT: This is not checking any signatures. DO NOT USE THIS IN PRODUCTION!)
+AT="$(echo $TOKEN | jq -r .access_token)"
 echo "Here is the DAT Header:"
 echo $AT | cut -d '.' -f1 | base64 -d 2>/dev/null | jq
 echo "Here is the DAT Body:"

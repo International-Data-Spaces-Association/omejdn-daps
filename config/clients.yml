@@ -1,1 +1,19 @@
 ---
+- client_id: 28:02:56:22:58:95:A3:21:65:6C:8E:92:02:E2:6E:E7:6B:F7:D2:12:keyid:28:02:56:22:58:95:A3:21:65:6C:8E:92:02:E2:6E:E7:6B:F7:D2:12
+  client_name: testconnector
+  grant_types: client_credentials
+  token_endpoint_auth_method: private_key_jwt
+  scope: idsc:IDS_CONNECTOR_ATTRIBUTES_ALL
+  attributes:
+  - key: idsc
+    value: IDS_CONNECTOR_ATTRIBUTES_ALL
+  - key: securityProfile
+    value: idsc:BASE_SECURITY_PROFILE
+  - key: referringConnector
+    value: http://testconnector.demo
+  - key: "@type"
+    value: ids:DatPayload
+  - key: "@context"
+    value: https://w3id.org/idsa/contexts/context.jsonld
+  - key: transportCertsSha256
+    value: 909e22ca744d96c54dfb6c0a1e5452bc4eb03e0aa87a9e53a4756f7c50b0ecc1

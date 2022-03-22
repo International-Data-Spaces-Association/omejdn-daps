@@ -26,7 +26,6 @@ Make sure to download them using `git submodule update --init --remote`
 The configuration consists of the following steps:
 
 1. Downloading Omejdn
-1. Generating a DAPS secret key and certificate
 1. Adjusting configuration files and registering connectors
 1. Starting the server
 
@@ -40,21 +39,6 @@ To retrieve it, run:
 ```
 git submodule update --init --remote
 ```
-
-### DAPS Key Generation
-
-First, you need to generate a signing key for Omejdn.
-This can be done using openssl and the following command.
-It is recommended to fill out the form, but not strictly necessary for test setups.
-
-```
-$ openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout keys/omejdn/omejdn.key -out daps.cert
-```
-
-This will create two files:
-
-* `omejdn.key` is the private signing key. It should **never** be known to anyone but the server, since anyone with this file can issue arbitrary DATs.
-* `daps.cert` is the certificate file. It is not confidential and is necessary to validate DATs. It must be made available to any DAT verifying entity.
 
 ### Config Files
 
@@ -90,12 +74,13 @@ To start the service, execute
 $ docker compose -f compose-development.yml up -d
 ```
 
-The endpoint for issuing DATs is `/token`. You may use it as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
+The endpoint for issuing DATs (`token_endpoint`) is listed in the metadata document at `/.well-known/oauth-authorization-server`.
+You may use it as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
 
 A script to quickly test your setup can be found in `scripts` (requires jq to be installed to format JSON).
 
 ```
-$ scripts/test.sh CLIENT_NAME
+$ scripts/test.sh NAME
 ```
 
 ## Going Forward
@@ -119,7 +104,7 @@ Depending on your use-case, you may want to use certificates issued by trusted C
 
 #### Omejdn Config API
 
-If you do not have Access to the DAPS or want to edit connectors (=clients) and configuration remotely,
+If you do not have Access to the DAPS or want to edit connectors (a.k.a. clients in OAuth language) and configuration remotely,
 you may enable Omejdn's Config API.
 
 To use it, uncomment the relevant lines (remove the # symbol) in `config/scope_mapping.yml`,
@@ -133,5 +118,5 @@ then edit or register a client with an attribute like this:
 Add the scope `omejdn:admin` to its list of allowed scopes.
 
 After enabling the Admin API Plugin in `config/omejdn.yml` (Have a look at `omejdn-server/config/omejdn.yml`),
-this client may now use the Omejdn Config API as documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/API.md).
+this client may now use the Omejdn Config API as documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/docs/).
 
