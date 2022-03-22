@@ -16,7 +16,7 @@ services:
       - ${DAPS_KEY}:/etc/nginx/daps.key
 
   omejdn-server:
-    image: ghcr.io/fraunhofer-aisec/omejdn-server:dev
+    image: ghcr.io/fraunhofer-aisec/omejdn-server:${OMEJDN_VERSION}
     restart: unless-stopped
     environment:
       - OMEJDN_ISSUER=${DAPS_ISSUER}

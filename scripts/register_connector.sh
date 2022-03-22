@@ -28,11 +28,13 @@ CLIENT_CERT_SHA="$(openssl x509 -in "$CLIENT_CERT" -noout -sha256 -fingerprint |
 
 cat >> config/clients.yml <<EOF
 - client_id: $CLIENT_ID
-  name: $CLIENT_NAME
-  redirect_uri: 
-  allowed_scopes:
-  - idsc:IDS_CONNECTOR_ATTRIBUTES_ALL
+  client_name: $CLIENT_NAME
+  grant_types: client_credentials
+  token_endpoint_auth_method: private_key_jwt
+  scope: idsc:IDS_CONNECTOR_ATTRIBUTES_ALL
   attributes:
+  - key: idsc
+    value: IDS_CONNECTOR_ATTRIBUTES_ALL
   - key: securityProfile
     value: $CLIENT_SECURITY_PROFILE
   - key: referringConnector

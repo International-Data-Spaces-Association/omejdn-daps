@@ -11,4 +11,10 @@ server {
     proxy_pass         http://omejdn-server:4567;
     proxy_redirect     off;
   }
+
+  # Fix for old connectors that cannot read RFC 8414 Metadata documents
+  # and that have this address hardcoded
+  location /.well-known/jwks.json {
+    rewrite /\.well-known/jwks.json /jwks.json last;
+  }
 }
