@@ -25,28 +25,30 @@ Make sure to download them using `git submodule update --init --remote`
 
 The configuration consists of the following steps:
 
-1. Downloading Omejdn
-1. Adjusting configuration files and registering connectors
+1. Adjusting configuration files
+1. Registering connectors
 1. Starting the server
 
 All commands are to be run from the repository's root directory
 
-### Downloading Omejdn
+### Configuration Files
 
-Omejdn is included as a submodule in this repository.
-To retrieve it, run:
+Edit the provided `.env`.
+The file includes many options you can play around with.
 
-```
-git submodule update --init --remote
-```
+The default DAPS issuer identifier is `http://localhost/auth`,
+which you should register with your connectors to support server metadata.
 
-### Config Files
+The `token_endpoint` and `jwks_uri` should be retrieved by the connector from the metadata URL
+`http://localhost/.well-known/oauth-authorization-server/auth`
+(replace `http`, `localhost` and `/auth` by the values you specified in `.env`).
+You may use them as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
 
-#### Server config
+They should default to `http://localhost/auth/token` and `http://localhost/auth/jwks.json`, respectively,
+though do not rely on this in production environments as they may change with every update.
+Only the metadata URL is guaranteed to stay constant.
 
-Open the provided `.env` and fill in your own DOMAIN as `DAPS_DOMAIN`.
-
-#### Registering Connectors
+### Registering Connectors
 
 Connectors can be registered at any point by adding clients to the `config/clients.yml` file and placing the certificate in the right place.
 To ease this process, use the provided script `scripts/register_connector.sh`
@@ -71,52 +73,51 @@ The script will automatically generate new client certificates (`keys/NAME.cert`
 To start the service, execute
 
 ```
-$ docker compose -f compose-development.yml up -d
+$ docker compose up
 ```
 
-The endpoint for issuing DATs (`token_endpoint`) is listed in the metadata document at `/.well-known/oauth-authorization-server`.
-You may use it as described in [IDS-G](https://github.com/International-Data-Spaces-Association/IDS-G).
+If you navigate to `http://localhost/`, you should be greeted by Omejdn's UI.
+The UI is relatively new, so expect some bugs.
 
 A script to quickly test your setup can be found in `scripts` (requires jq to be installed to format JSON).
+It takes the name of a connector and tries to request a DAT.
 
 ```
 $ scripts/test.sh NAME
 ```
 
-## Going Forward
+## Hacking
 
-While the above configuration should be sufficient for testing purposes,
-you probably want to consider the following ideas in the long term:
+There are a lot of ways one might want to extend Omejdn's functionality.
+Luckily, Omejdn is quite flexible.
+Below are just a few ideas.
 
-#### Transport Encryption
+### Adding additional attributes
 
-Run Omejdn behind a Proxy with https support, such as [Nginx](https://nginx.org/en/).
+For example, adding additional attributes to the DAT is as simple as listing the key in `config/scope_mapping.yml` under the right scope
+and then provisioning each connector with the right attribute key and value in `config/clients.yml`.
 
-The alternative `compose-https.yml` uses some more variables defined in `.env` and sets up NginX to run Omejdn behind TLS,
-provided you can serve the TLS key and certificate.
+### Adding other attribute scopes
 
-It also illustrates the correct configuration for using the Omejdn based DAPS with a non-root path component in the URL.
+Currently, the only defined scope is `idsc:IDS_CONNECTOR_ATTRIBUTES_ALL`,
+but defining your own only requires you to specify them in `config/scope_mapping.yml` (along with the attribute keys you want to be included in that scope),
+and listing the new scope under the connector's `scope` property in `config/clients.yml`.
 
-#### Certificate Authorities
+Additionally, each such client needs an attribute with key `s` for a scope `s`, and an attribute with key `k` and value `v` for a scope `k:v`
 
-As described in this document, all certificates are self-signed.
-Depending on your use-case, you may want to use certificates issued by trusted Certificate Authorities for both the DAPS and the Connectors.
+Clients can request several scopes at once (by space-separating them in the request) and the attributes for all of them are added to the DAT.
 
-#### Omejdn Config API
+### Adding custom functionality
 
-If you do not have Access to the DAPS or want to edit connectors (a.k.a. clients in OAuth language) and configuration remotely,
-you may enable Omejdn's Config API.
+Have a look at Omejdn's Plugin API (especially the `claim_mapper`s).
+With just a bit of Ruby you can hook into the process and add anything you like to the DAT.
 
-To use it, uncomment the relevant lines (remove the # symbol) in `config/scope_mapping.yml`,
-then edit or register a client with an attribute like this:
+### Omejdn Config API
 
-```
-- key: omejdn
-- value: admin
-```
+If you do not have Access to the DAPS and want to edit connectors (a.k.a. clients in OAuth language) and configuration remotely,
+you may use Omejdn's Config API.
 
-Add the scope `omejdn:admin` to its list of allowed scopes.
+Using the API requires an access token with the special scope `omejdn:admin` (to be added to a client like any other scope, see above)
 
-After enabling the Admin API Plugin in `config/omejdn.yml` (Have a look at `omejdn-server/config/omejdn.yml`),
-this client may now use the Omejdn Config API as documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/docs/).
+The Omejdn Config API is documented [here](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/docs/).
 
