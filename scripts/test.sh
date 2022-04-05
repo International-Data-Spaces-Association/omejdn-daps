@@ -22,7 +22,7 @@ error_check $? "Could not load client certificate."
 
 # Load Configuration
 . ../.env
-echo "Trying to get a DAT for $CLIENTNAME from $DAPS_ISSUER"
+echo "Trying to get a DAT for $CLIENTNAME from $OMEJDN_ISSUER"
 
 SKI="$(echo "$CERT" | grep -A1 "Subject Key Identifier" | tail -n 1 | tr -d ' ')"
 AKI="$(echo "$CERT" | grep -A1 "Authority Key Identifier" | tail -n 1 | tr -d ' ')"
@@ -56,8 +56,8 @@ EOF
 error_check $? "Could not create Test JWT"
 
 # Acquire the metadata document (IMPORTANT: This is ignoring the server's certificate validity. DO NOT USE THIS IN PRODUCTION!)
-[ "$DAPS_PATH" == "/" ] && DAPS_PATH="" # Erase root path
-METADATA_URL="$DAPS_ISSUER/.well-known/oauth-authorization-server$DAPS_PATH"
+[ "$OMEJDN_PATH" == "/" ] && OMEJDN_PATH="" # Erase root path
+METADATA_URL="$OMEJDN_PROTOCOL://$OMEJDN_DOMAIN/.well-known/oauth-authorization-server$OMEJDN_PATH"
 echo "Aquiring the server's metadata document from $METADATA_URL"
 METADATA="$(curl -Ss -Lk --post301 "$METADATA_URL")"
 error_check $? "Could not aquire the server's metadata. Are you sure Omejdn is running?"
