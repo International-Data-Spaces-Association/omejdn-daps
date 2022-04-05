@@ -2,3 +2,6 @@
 	path = omejdn-server
 	url = https://github.com/Fraunhofer-AISEC/omejdn-server
 	branch = master
+[submodule "omejdn-ui"]
+	path = omejdn-ui
+	url = https://github.com/Fraunhofer-AISEC/omejdn-ui
