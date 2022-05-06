@@ -1,24 +1,25 @@
 #!/bin/sh
 
-if [ ! $# -ge 1 ] || [ ! $# -le 3 ]; then
-    echo "Usage: $0 NAME (SECURITY_PROFILE) (CERTFILE)"
+if [ ! $# -ge 2 ] || [ ! $# -le 3 ]; then
+    echo "Usage: $0 NAME EC_BITS (SECURITY_PROFILE)"
     exit 1
 fi
 
 CLIENT_NAME=$1
-
-CLIENT_SECURITY_PROFILE=$2
-[ -z "$CLIENT_SECURITY_PROFILE" ] && CLIENT_SECURITY_PROFILE="idsc:BASE_SECURITY_PROFILE"
-
 CLIENT_CERT="keys/clients/$CLIENT_NAME.cert"
-if [ -n "$3" ]; then
-    [ ! -f "$3" ] && (echo "Cert not found"; exit 1)
-    cert_format="DER"
-    openssl x509 -noout -in "$3" 2>/dev/null && cert_format="PEM"
-    openssl x509 -inform "$cert_format" -in "$3" -text > "$CLIENT_CERT"
+
+if [ $2 = "521" ]; then
+    openssl genpkey -genparam -algorithm ec -pkeyopt ec_paramgen_curve:P-521 -out EC521PARAM.key
+    openssl req -newkey ec:EC521PARAM.key -new -batch -nodes -x509 -days 3650 -text -keyout "keys/clients/${CLIENT_NAME}.key" -out "$CLIENT_CERT"
+    rm EC521PARAM.key
 else
-    openssl req -newkey rsa:2048 -new -batch -nodes -x509 -days 3650 -text -keyout "keys/clients/${CLIENT_NAME}.key" -out "$CLIENT_CERT"
+    openssl genpkey -genparam -algorithm ec -pkeyopt ec_paramgen_curve:P-256 -out EC256PARAM.key
+    openssl req -newkey ec:EC256PARAM.key -new -batch -nodes -x509 -days 3650 -text -keyout "keys/clients/${CLIENT_NAME}.key" -out "$CLIENT_CERT"
+    rm EC256PARAM.key
 fi
+
+CLIENT_SECURITY_PROFILE=$3
+[ -z "$CLIENT_SECURITY_PROFILE" ] && CLIENT_SECURITY_PROFILE="idsc:BASE_SECURITY_PROFILE"
 
 SKI="$(grep -A1 "Subject Key Identifier"  "$CLIENT_CERT" | tail -n 1 | tr -d ' ')"
 AKI="$(grep -A1 "Authority Key Identifier"  "$CLIENT_CERT" | tail -n 1 | tr -d ' ')"
