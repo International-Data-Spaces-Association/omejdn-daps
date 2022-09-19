@@ -12,8 +12,8 @@ services:
       - UI_PATH=${UI_PATH}
     volumes:
       - ${PWD}/nginx.${OMEJDN_ENVIRONMENT}.conf:/etc/nginx/templates/default.conf.template
-      - ${TLS_CERT}:/etc/nginx/daps.cert
-      - ${TLS_KEY}:/etc/nginx/daps.key
+      - ${TLS_CERT}:/etc/nginx/omejdn.cert
+      - ${TLS_KEY}:/etc/nginx/omejdn.key
 
   omejdn-server:
     image: ghcr.io/fraunhofer-aisec/omejdn-server:${OMEJDN_VERSION}
