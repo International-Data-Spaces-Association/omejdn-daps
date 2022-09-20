@@ -11,7 +11,7 @@ services:
       - OMEJDN_PATH=${OMEJDN_PATH}
       - UI_PATH=${UI_PATH}
     volumes:
-      - ${PWD}/nginx.${OMEJDN_ENVIRONMENT}.conf:/etc/nginx/templates/default.conf.template
+      - ./nginx.${OMEJDN_ENVIRONMENT}.conf:/etc/nginx/templates/default.conf.template
       - ${TLS_CERT}:/etc/nginx/omejdn.cert
       - ${TLS_KEY}:/etc/nginx/omejdn.key
 
@@ -27,8 +27,8 @@ services:
       - OMEJDN_DEFAULT_AUDIENCE=idsc:IDS_CONNECTORS_ALL
       - OMEJDN_ADMIN=${ADMIN_USERNAME}:${ADMIN_PASSWORD}
     volumes:
-      - ${PWD}/config:/opt/config
-      - ${PWD}/keys:/opt/keys
+      - ./config:/opt/config
+      - ./keys:/opt/keys
 
   omejdn-ui:
     image: ghcr.io/fraunhofer-aisec/omejdn-ui:${UI_VERSION}
