@@ -109,8 +109,28 @@ Clients can request several scopes at once (by space-separating them in the requ
 
 ### Adding custom functionality
 
-Have a look at Omejdn's Plugin API (especially the `claim_mapper`s).
-With just a bit of Ruby you can hook into the process and add anything you like to the DAT.
+Have a look at [Omejdn's Plugin API](https://github.com/Fraunhofer-AISEC/omejdn-server/blob/master/docs/Plugins/Plugins.md).
+With just a bit of Ruby you can hook into the process and e.g. add anything you like to the DAT.
+
+Here is a simple plugin example:
+
+```ruby
+def my_awesome_function(bind)
+    # 1. Get the newly created DAT body
+    token = bind.local_variable_get(:token)
+    
+    # 2. Modify it whatever you want. This example statically adds a key `key` with value `value`,
+    #    but this is ruby, so you can program in here whatever you like.
+    token["key"] = "value"
+end
+
+# Execute this function whenever a new DAT body has been created
+PluginLoader.register('TOKEN_CREATED_ACCESS_TOKEN', :my_awesome_function)
+```
+
+To load it into Omejdn, mount it to `/opt/plugins/your_plugin_name/your_plugin_name.rb`
+and add `your_plugin_name` to `omejdn-plugins.yml` as a key under `plugins`,
+then restart Omejdn.
 
 ### Omejdn Config API
 
